@@ -1,0 +1,6 @@
+build/
+.gradle/
+.kotlin/
+.cf_cookies.json
+results/
+.DS_Store

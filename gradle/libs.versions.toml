@@ -1,0 +1,8 @@
+[versions]
+# Версия mirutime-core в ЕДИНСТВЕННОМ месте. main-SNAPSHOT = последний коммит
+# main в JitPack (пересобирается по запросу; dev-режим, не для релизов).
+# Чтобы зафиксировать тег: mirutimeCore = "0.1.0".
+mirutimeCore = "main-SNAPSHOT"
+
+[libraries]
+mirutime-core-jvm = { module = "com.github.HnDK0.MiruTime-Core:mirutime-core-jvm", version.ref = "mirutimeCore" }
