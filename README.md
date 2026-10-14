@@ -1,3 +1,5 @@
+> English: [README_EN.md](./README_EN.md)
+
 # mirutime-plugin-tester
 
 CLI-тул для отладки Lua-плагинов NoveLA: гоняет плагин через **ту же** либу
@@ -26,7 +28,8 @@ CLI-тул для отладки Lua-плагинов NoveLA: гоняет пл�
 делать не стоит — сам JitPack от этого предостерегает).
 
 - Зафиксировать тег: в том же `gradle/libs.versions.toml` поставить
-  `mirutimeCore = "0.1.0"` (тег либы вида `v0.1.0`).
+  `mirutimeCore = "v0.1.0"` (JitPack отдаёт версию строго по имени тега,
+  включая префикс `v`; без него не резолвится).
 - Нюанс: Gradle кэширует снапшоты 24 часа — чтобы принудительно подтянуть
   свежий `main-SNAPSHOT`: `./gradlew --refresh-dependencies run ...`.
 
