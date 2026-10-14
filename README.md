@@ -74,3 +74,7 @@ ANDROID_HOME=~/Library/Android/sdk ./gradlew :mirutime-core:publishToMavenLocal 
 Куки CF-обхода вместе с User-Agent сохраняются в `.cf_cookies.json` в корне
 проекта (файл в `.gitignore`, runtime-state, не коммитить). При следующем запуске
 UA воспроизводится — `cf_clearance` валиден только с тем же UA.
+
+## Лицензия
+
+GPL-3.0-or-later © 2026 HnDK0, см. LICENSE.
