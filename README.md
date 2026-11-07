@@ -16,33 +16,39 @@ CLI-тул для отладки Lua-плагинов NoveLA: гоняет пл�
 - JDK 17+ (тулчейн Gradle — 21).
 - `python3` + `DrissionPage` + браузер Brave — только для CF-bypass
   (опционально; без них тул просто деградирует в `CfChallengeRequired`).
-- Локальная публикация либы (см. ниже) — только для dev-цикла с
-  незакоммиченными правками; иначе тул берёт её из JitPack.
+- Сеть при первом запуске (или после `--refresh-dependencies`): тул скачивает
+  Maven-репозиторий ядра из GitHub-релиза MiruTime.
 
-## Версия mirutime-core (писать её нигде не надо)
+## Версия mirutime-core
 
-Версия либы задана в **единственном месте** — `mirutimeCore` в
-`gradle/libs.versions.toml`. По умолчанию там `main-SNAPSHOT`: JitPack
-собирает её из последнего коммита `main` либы по запросу, так что тул всегда
-берёт свежий код без правок версий (dev-режим; для воспроизводимости так
-делать не стоит — сам JitPack от этого предостерегает).
+Версию не надо писать вручную: `settings.gradle.kts` скачивает
+`mirutime-core-maven-<version>.zip` из релиза `nightly` в `HnDK0/MiruTime`,
+а если там нет — из последнего опубликованного релиза. Zip распаковывается в
+`build/core-repo`, версия пишется в `build/core-version.txt`. JitPack больше
+не используется.
 
-- Зафиксировать тег: в том же `gradle/libs.versions.toml` поставить
-  `mirutimeCore = "v0.1.0"` (JitPack отдаёт версию строго по имени тега,
-  включая префикс `v`; без него не резолвится).
-- Нюанс: Gradle кэширует снапшоты 24 часа — чтобы принудительно подтянуть
-  свежий `main-SNAPSHOT`: `./gradlew --refresh-dependencies run ...`.
+- Повторный запуск берёт кэш и не ходит в сеть. Принудительно обновить:
+  `./gradlew --refresh-dependencies run ...`.
+- Пока не вышел первый nightly с core-ассетами, сборка упадёт с понятной
+  ошибкой — это ожидаемо.
+- Draft-релиз не виден до публикации: fallback смотрит только на
+  опубликованные релизы.
 
-## Публикация либы (только для локального dev-цикла)
+## Локальная разработка без нового релиза
+
+Опубликовать ядро из монорепо и указать версию явно:
 
 ```bash
-cd /Users/mac/Documents/GitHub/MiruTime-Core
-ANDROID_HOME=~/Library/Android/sdk ./gradlew :mirutime-core:publishToMavenLocal -Pgroup=com.github.HnDK0.MiruTime-Core -Pversion=main-SNAPSHOT
+cd /Users/mac/Documents/GitHub/MiruTime
+ANDROID_HOME=~/Library/Android/sdk ./gradlew :mirutime-core:publishToMavenLocal \
+  -Pgroup=com.github.HnDK0.MiruTime -Pversion=0.1-local
+
+cd /Users/mac/Documents/GitHub/MiruTime-plugin-tester
+./gradlew -PmirutimeCoreVersion=0.1-local run --args="<plugin.lua>"
 ```
 
-Без локальной публикации тул берёт ту же версию из JitPack (`mavenLocal()`
-первый в списке репозиториев, JitPack — запасной; в релизе — пин тега или
-артефакт GitHub Release, см. §4 README либы).
+С `-PmirutimeCoreVersion` сеть не используется, артефакт берётся из
+`mavenLocal()`.
 
 ## Запуск
 

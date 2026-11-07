@@ -6,6 +6,7 @@ import dev.mirutime.core.api.CatalogItem
 import dev.mirutime.core.api.ChapterContent
 import dev.mirutime.core.api.ContentType
 import dev.mirutime.core.api.Outcome
+import dev.mirutime.core.api.MiruError
 import dev.mirutime.core.api.PluginError
 import dev.mirutime.core.api.PluginSource
 import dev.mirutime.core.api.VideoStream
@@ -384,7 +385,7 @@ class TestRunner(
         )
     }
 
-    private fun bookErrorResults(error: PluginError, callMs: Long, url: String): List<TestResult> {
+    private fun bookErrorResults(error: MiruError, callMs: Long, url: String): List<TestResult> {
         val message = describe(error)
         val attributed = bookSectionOf(error)
         val sections = listOf(
@@ -1465,13 +1466,13 @@ class TestRunner(
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    private fun noteError(error: PluginError) {
+    private fun noteError(error: MiruError) {
         if (error is PluginError.UserMessage) {
             events += PluginEvent("show_error", error.title, error.message)
         }
     }
 
-    private fun describe(error: PluginError): String = when (error) {
+    private fun describe(error: MiruError): String = when (error) {
         is PluginError.UserMessage -> "${error.title}: ${error.message}"
         is PluginError.Network -> error.cause
         is PluginError.DnsFailure -> "DNS failure for ${error.host}"
@@ -1479,16 +1480,17 @@ class TestRunner(
         is PluginError.ResponseTooLarge -> "response exceeds ${error.limit} bytes"
         is PluginError.UnsupportedApi -> "unsupported plugin API ${error.actual} (requires ${error.required})"
         is PluginError.ScriptError -> error.detail
+        else -> error.toString()
     }
 
-    private fun annotateBlocked(details: MutableMap<String, Any>, error: PluginError) {
+    private fun annotateBlocked(details: MutableMap<String, Any>, error: MiruError) {
         val code = trace.lastOrNull()?.status
         if (error is PluginError.CfChallengeRequired || code == 403 || code == 503) {
             details["note"] = "CF-blocked (use --cf to bypass)"
         }
     }
 
-    private fun bookSectionOf(error: PluginError): String? {
+    private fun bookSectionOf(error: MiruError): String? {
         val detail = when (error) {
             is PluginError.ScriptError -> error.detail
             is PluginError.UserMessage -> "${error.title} ${error.message}"

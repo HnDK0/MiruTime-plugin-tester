@@ -16,33 +16,39 @@ Repository: https://github.com/HnDK0/MiruTime-plugin-tester
 - JDK 17+ (Gradle toolchain — 21).
 - `python3` + `DrissionPage` + Brave browser — CF-bypass only
   (optional; without them the tool simply degrades to `CfChallengeRequired`).
-- Local library publication (see below) — only for the dev loop with
-  uncommitted edits; otherwise the tool takes it from JitPack.
+- Network on the first run (or after `--refresh-dependencies`): the tool
+  downloads the core Maven repository from a MiruTime GitHub release.
 
-## mirutime-core version (you don't need to write it anywhere)
+## mirutime-core version
 
-The library version is set in a **single place** — `mirutimeCore` in
-`gradle/libs.versions.toml`. By default it is `main-SNAPSHOT`: JitPack
-builds it from the library's latest `main` commit on request, so the tool
-always picks up fresh code with no version edits (dev mode; don't do this for
-reproducibility — JitPack itself warns against it).
+You never write it by hand: `settings.gradle.kts` downloads
+`mirutime-core-maven-<version>.zip` from the `nightly` release of
+`HnDK0/MiruTime`, falling back to the latest published release. The zip is
+unpacked into `build/core-repo` and the version into
+`build/core-version.txt`. JitPack is no longer used.
 
-- Pin a tag: in the same `gradle/libs.versions.toml` set
-  `mirutimeCore = "v0.1.0"` (JitPack serves the version strictly by tag name,
-  including the `v` prefix; without it nothing resolves).
-- Nuance: Gradle caches snapshots for 24 hours — to force a fresh
-  `main-SNAPSHOT`: `./gradlew --refresh-dependencies run ...`.
+- A repeated run uses the cache and does not touch the network. Force a
+  refresh: `./gradlew --refresh-dependencies run ...`.
+- Until the first nightly with core assets exists, the build fails with a
+  clear message — expected.
+- Draft releases are invisible until published; the fallback only sees
+  published releases.
 
-## Library publication (local dev loop only)
+## Local development without a new release
+
+Publish the core from the monorepo and pass the version explicitly:
 
 ```bash
-cd /Users/mac/Documents/GitHub/MiruTime-Core
-ANDROID_HOME=~/Library/Android/sdk ./gradlew :mirutime-core:publishToMavenLocal -Pgroup=com.github.HnDK0.MiruTime-Core -Pversion=main-SNAPSHOT
+cd /Users/mac/Documents/GitHub/MiruTime
+ANDROID_HOME=~/Library/Android/sdk ./gradlew :mirutime-core:publishToMavenLocal \
+  -Pgroup=com.github.HnDK0.MiruTime -Pversion=0.1-local
+
+cd /Users/mac/Documents/GitHub/MiruTime-plugin-tester
+./gradlew -PmirutimeCoreVersion=0.1-local run --args="<plugin.lua>"
 ```
 
-Without local publication the tool takes the same version from JitPack
-(`mavenLocal()` first in the repository list, JitPack as fallback; in release —
-a tag pin or a GitHub Release artifact, see §4 of the library README).
+With `-PmirutimeCoreVersion` the network is skipped and the artifact comes
+from `mavenLocal()`.
 
 ## Running
 
