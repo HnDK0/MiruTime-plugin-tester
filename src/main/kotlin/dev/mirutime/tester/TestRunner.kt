@@ -1642,7 +1642,10 @@ class TestRunner(
     }
 
     private suspend fun analyzeImage(url: String, refererUrl: String, index: Int): ImageAnalysis {
-        val response = raw.get(sourceId, url, headers = mapOf("Referer" to refererUrl))
+        // Header values must be ASCII: percent-encode non-ASCII paths
+        // (Arabic/Chinese book URLs) before sending the Referer.
+        val referer = runCatching { URI(refererUrl).toASCIIString() }.getOrDefault(refererUrl)
+        val response = raw.get(sourceId, url, headers = mapOf("Referer" to referer))
         val bytes = response.bodyAsBytes()
         val contentType = response.headers["Content-Type"] ?: ""
         var hash = 0
@@ -1768,7 +1771,7 @@ class TestRunner(
     }
 
     companion object {
-        private val VALID_FILTER_TYPES = setOf("select", "checkbox", "tristate", "text", "sort", "genre")
+        private val VALID_FILTER_TYPES = setOf("select", "checkbox", "tristate", "text", "sort", "genre", "tag_input", "switch")
 
         private val stubKeywords = listOf(
             "placeholder", "stub", "no-cover", "now_printing", "restricted",

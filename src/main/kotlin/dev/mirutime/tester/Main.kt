@@ -124,7 +124,18 @@ fun main(args: Array<String>) {
         api = SUPPORTED_PLUGIN_API,
         sha256 = sha256,
     )
-    val defined = definedFunctions(code, DISPLAY_FUNCTIONS + EXTRA_FUNCTIONS)
+    // Introspection runs the chunk in a bare sandbox: plugin headers that call
+    // preference/cookie bindings at top level would abort before the function
+    // definitions and show "no functions" in the report.
+    val introspectionStubs = """
+        function get_preference() return nil end
+        function set_preference() end
+        function set_cookies() end
+        function get_cookies() return {} end
+        function get_localStorage() return nil end
+        function set_localStorage() end
+    """.trimIndent() + "\n"
+    val defined = definedFunctions(introspectionStubs + code, DISPLAY_FUNCTIONS + EXTRA_FUNCTIONS)
 
     // ── Plugin Info ────────────────────────────────────────────────────────
     println("── Plugin Info ────────────────────────────────────────────────")
