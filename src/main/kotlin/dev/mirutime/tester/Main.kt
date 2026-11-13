@@ -312,10 +312,10 @@ private fun resolveLibDir(fileSystem: LocalFileSystem): String {
     }
     target.mkdirs()
     for (file in files) {
-        val dest = File(target, file.name)
-        if (!dest.exists() || dest.length() != file.length()) {
-            file.copyTo(dest, overwrite = true)
-        }
+        // Always overwrite: a same-length edit (a→b) would otherwise keep the
+        // stale copy forever and the run would silently test old lib code.
+        // The corpus is ~50 small files, so the copy costs nothing.
+        file.copyTo(File(target, file.name), overwrite = true)
     }
     return target.absolutePath
 }
