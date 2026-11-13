@@ -6,10 +6,10 @@ import dev.mirutime.core.engine.adapter.LuaPluginSourceFactory
 import dev.mirutime.core.installer.ScriptMetadataParser
 import dev.mirutime.core.installer.definedFunctions
 import dev.mirutime.core.installer.toPluginMetadata
+import io.ktor.client.engine.okhttp.OkHttp
 import dev.mirutime.core.network.HostOptionsRegistry
 import dev.mirutime.core.network.NetworkTraceEvent
 import dev.mirutime.core.network.PluginHttpClient
-import dev.mirutime.core.network.createEngine
 import dev.mirutime.core.network.security.InetAddressHostResolver
 import dev.mirutime.core.network.security.SsrfGuard
 import java.io.File
@@ -106,7 +106,7 @@ fun main(args: Array<String>) {
     cookieStore.userAgentEntries().forEach { (domain, ua) ->
         hostOptions.setUserAgent(domain, CfSolver.SOLVER_OWNER, ua)
     }
-    val engine = createEngine()
+    val engine = OkHttp.create()
     val ssrfGuard = SsrfGuard(InetAddressHostResolver())
 
     // One sink for BOTH clients (the plugin's own http_get and the tester's

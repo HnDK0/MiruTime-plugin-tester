@@ -28,4 +28,7 @@ dependencies {
     // Ksoup для raw-HTML кросс-чеков (card/chapter/img counting) — у либы он
     // runtime-only, поэтому на compile-classpath тестера его нет.
     implementation("com.fleeksoft.ksoup:ksoup:0.2.6")
+    // Same JVM HTTP engine family as the Android app (OkHttp). CIO's TLS/cf
+    // fingerprint is rejected by Cloudflare even with a fresh cf_clearance.
+    implementation("io.ktor:ktor-client-okhttp:3.6.1")
 }
